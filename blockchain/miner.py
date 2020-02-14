@@ -9,7 +9,6 @@ from timeit import default_timer as timer
 
 import random
 
-
 def proof_of_work(last_proof):
     """
     Multi-Ouroboros of Work Algorithm
@@ -21,21 +20,14 @@ def proof_of_work(last_proof):
     """
     last_string = json.dumps(last_proof, sort_keys=True)
     start = timer()
-
     print("Searching for next proof")
-    # proof = 0
-    proof=random.randint(0,10000000)
+    proof=random.randint(2000000,30000000)
     print("Random Proof",proof)
     proof_str=str(proof)
     last_hash=hashlib.sha256(last_string.encode()).hexdigest()
     while valid_proof(last_hash, proof) is False:
         proof += 1
-
     print("Proof found: " + str(proof) + " in " + str(timer() - start))
-    # guess = f'{block_string}{proof}'.encode()
-    # guess_hash = hashlib.sha256(guess).hexdigest()
-
-    # print("GUESS",guess_hash[:6],block_string[-6:])
     return proof
 
 
@@ -47,11 +39,7 @@ def valid_proof(last_hash, proof):
 
     IE:  last_hash: ...AE9123456, new hash 123456E88...
     """
-
     hash_proof=hashlib.sha256(str(proof).encode()).hexdigest()
-    # guess = f'{last_hash}{proof}'.encode()
-    # guess_hash = hashlib.sha256(guess).hexdigest()
-    # print(last_hash[-6:])
     return hash_proof[:6] == last_hash[-6:]
 
 
@@ -84,10 +72,8 @@ if __name__ == '__main__':
             print("Error:  Non-json response")
             print("Response returned:")
             print(r)
-            # break
             error=True
         if error==False:   
-            # print("DATA",data)
             new_proof = proof_of_work(data.get('proof'))
 
             post_data = {"proof": new_proof,
