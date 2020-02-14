@@ -7,12 +7,6 @@ from hashtables import (HashTable,
 def get_indices_of_item_weights(weights, length, limit):
     ht = HashTable(16)
 
-    """
-    YOUR CODE HERE
-    """
-    # hash_table_insert(hash_table, key, value)
-    # hash_table_retrieve(hash_table, key)
-
     for curr in range(len(weights)):
             
         wt=weights[curr]
