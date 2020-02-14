@@ -19,15 +19,18 @@ def proof_of_work(last_proof):
     - p is the previous proof, and p' is the new proof
     - Use the same method to generate SHA-256 hashes as the examples in class
     """
-    block_string = json.dumps(last_proof, sort_keys=True)
+    last_string = json.dumps(last_proof, sort_keys=True)
     start = timer()
 
     print("Searching for next proof")
     # proof = 0
     proof=random.randint(0,10000000)
     print("Random Proof",proof)
-    while valid_proof(block_string, proof) is False:
+    proof_str=str(proof)
+    last_hash=hashlib.sha256(last_string.encode()).hexdigest()
+    while valid_proof(last_hash, proof) is False:
         proof += 1
+
     print("Proof found: " + str(proof) + " in " + str(timer() - start))
     # guess = f'{block_string}{proof}'.encode()
     # guess_hash = hashlib.sha256(guess).hexdigest()
@@ -45,11 +48,11 @@ def valid_proof(last_hash, proof):
     IE:  last_hash: ...AE9123456, new hash 123456E88...
     """
 
-
-    guess = f'{last_hash}{proof}'.encode()
-    guess_hash = hashlib.sha256(guess).hexdigest()
+    hash_proof=hashlib.sha256(str(proof).encode()).hexdigest()
+    # guess = f'{last_hash}{proof}'.encode()
+    # guess_hash = hashlib.sha256(guess).hexdigest()
     # print(last_hash[-6:])
-    return guess_hash[:6] == last_hash[-6:]
+    return hash_proof[:6] == last_hash[-6:]
 
 
 if __name__ == '__main__':
@@ -71,20 +74,30 @@ if __name__ == '__main__':
         print("ERROR: You must change your name in `my_id.txt`!")
         exit()
     # Run forever until interrupted
+    error=False
     while True:
         # Get the last proof from the server
         r = requests.get(url=node + "/last_proof")
-        data = r.json()
-        print("DATA",data)
-        new_proof = proof_of_work(data.get('proof'))
+        try:
+            data = r.json()
+        except ValueError:
+            print("Error:  Non-json response")
+            print("Response returned:")
+            print(r)
+            # break
+            error=True
+        if error==False:   
+            # print("DATA",data)
+            new_proof = proof_of_work(data.get('proof'))
 
-        post_data = {"proof": new_proof,
-                     "id": id}
+            post_data = {"proof": new_proof,
+                        "id": id}
 
-        r = requests.post(url=node + "/mine", json=post_data)
-        data = r.json()
-        if data.get('message') == 'New Block Forged':
-            coins_mined += 1
-            print("Total coins mined: " + str(coins_mined))
-        else:
-            print(data.get('message'))
+            r = requests.post(url=node + "/mine", json=post_data)
+            data = r.json()
+            if data.get('message') == 'New Block Forged':
+                coins_mined += 1
+                print("Total coins mined: " + str(coins_mined))
+            else:
+                print(data.get('message'))
+        error==False
