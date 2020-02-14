@@ -2,7 +2,7 @@ import hashlib
 import requests
 
 import sys
-
+import random
 from uuid import uuid4
 
 from timeit import default_timer as timer
@@ -23,7 +23,9 @@ def proof_of_work(last_proof):
     start = timer()
 
     print("Searching for next proof")
-    proof = 0
+    # proof = 0
+    proof=random.randint(0,10000000)
+    print("Random Proof",proof)
     #  TODO: Your code here
 
     print("Proof found: " + str(proof) + " in " + str(timer() - start))
